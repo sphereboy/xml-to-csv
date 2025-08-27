@@ -1,0 +1,39 @@
+{
+  "name": "WordPress",
+  "description": "WordPress XML export format (Tools > Export)",
+  "item_tag": "item",
+  "field_mappings": {
+    "title": "title",
+    "content": "{http://purl.org/rss/1.0/modules/content/}encoded",
+    "excerpt": "{http://wordpress.org/export/1.2/excerpt/}encoded",
+    "author": "{http://purl.org/dc/elements/1.1/}creator",
+    "date": "pubDate",
+    "status": "{http://wordpress.org/export/1.2/}status",
+    "categories": "category",
+    "tags": "post_tag",
+    "featured_image": "{http://wordpress.org/export/1.2/}attachment_url",
+    "slug": "{http://wordpress.org/export/1.2/}post_name",
+    "seo_title": "yoast_wpseo_title",
+    "seo_description": "yoast_wpseo_metadesc"
+  },
+  "date_formats": [
+    "%a, %d %b %Y %H:%M:%S %z",
+    "%Y-%m-%d %H:%M:%S",
+    "%Y-%m-%dT%H:%M:%S%z"
+  ],
+  "status_mapping": {
+    "publish": "Published",
+    "draft": "Draft",
+    "private": "Draft",
+    "pending": "Draft",
+    "future": "Draft",
+    "trash": "Draft"
+  },
+  "content_field": "{http://purl.org/rss/1.0/modules/content/}encoded",
+  "excerpt_field": "{http://wordpress.org/export/1.2/excerpt/}encoded",
+  "author_field": "{http://purl.org/dc/elements/1.1/}creator",
+  "date_field": "pubDate",
+  "image_field": "{http://wordpress.org/export/1.2/}attachment_url",
+  "category_field": "category",
+  "tag_field": "post_tag"
+}

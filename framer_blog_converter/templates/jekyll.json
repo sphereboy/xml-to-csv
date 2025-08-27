@@ -1,0 +1,33 @@
+{
+  "name": "Jekyll",
+  "description": "Jekyll front matter and markdown content",
+  "item_tag": "post",
+  "field_mappings": {
+    "title": "title",
+    "content": "content",
+    "excerpt": "excerpt",
+    "author": "author",
+    "date": "date",
+    "categories": "categories",
+    "tags": "tags",
+    "slug": "slug",
+    "featured_image": "image"
+  },
+  "date_formats": [
+    "%Y-%m-%d",
+    "%Y-%m-%d %H:%M:%S",
+    "%Y-%m-%dT%H:%M:%S%z"
+  ],
+  "status_mapping": {
+    "published": "Published",
+    "draft": "Draft",
+    "unpublished": "Draft"
+  },
+  "content_field": "content",
+  "excerpt_field": "excerpt",
+  "author_field": "author",
+  "date_field": "date",
+  "image_field": "image",
+  "category_field": "categories",
+  "tag_field": "tags"
+}
