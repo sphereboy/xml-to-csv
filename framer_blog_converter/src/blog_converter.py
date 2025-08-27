@@ -388,3 +388,64 @@ class FramerBlogConverter:
             
         except Exception as e:
             return {"error": str(e)}
+    
+    def get_file_statistics(self, input_file: str) -> Dict[str, Any]:
+        """Get file statistics - alias for get_conversion_stats for web compatibility."""
+        return self.get_conversion_stats(input_file)
+    
+    def preview_posts(self, input_file: str, limit: int = 5) -> List[Dict[str, Any]]:
+        """Preview the first N posts from the XML file without full conversion."""
+        if not os.path.exists(input_file):
+            return []
+        
+        if not self.current_mapping:
+            # Try to auto-detect platform
+            platform = self.detect_platform(input_file)
+            if platform:
+                self.load_platform_template(platform)
+            else:
+                return []
+        
+        if not self.current_mapping:
+            return []
+        
+        try:
+            preview_posts = []
+            context = etree.iterparse(input_file, events=('end',), tag=self.current_mapping.item_tag)
+            
+            for event, elem in context:
+                if len(preview_posts) >= limit:
+                    break
+                
+                post_data = {}
+                
+                # Extract basic fields
+                for field_name, xml_path in self.current_mapping.fields.items():
+                    if xml_path:
+                        value = self._extract_field(elem, xml_path)
+                        if value:
+                            post_data[field_name] = value
+                
+                # Extract tags/categories if available
+                if hasattr(self.current_mapping, 'tags_field') and self.current_mapping.tags_field:
+                    tags = self._extract_multiple_values(elem, self.current_mapping.tags_field)
+                    if tags:
+                        post_data['tags'] = tags
+                
+                if hasattr(self.current_mapping, 'categories_field') and self.current_mapping.categories_field:
+                    categories = self._extract_multiple_values(elem, self.current_mapping.categories_field)
+                    if categories:
+                        post_data['categories'] = categories
+                
+                if post_data:
+                    preview_posts.append(post_data)
+                
+                # Clean up element to free memory
+                elem.clear()
+            
+            del context
+            return preview_posts
+            
+        except Exception as e:
+            print(f"Error previewing posts: {e}")
+            return []

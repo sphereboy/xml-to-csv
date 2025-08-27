@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framer Blog XML to CSV Converter</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .drop-zone {
+            border: 2px dashed #cbd5e0;
+            transition: all 0.3s ease;
+        }
+        .drop-zone.dragover {
+            border-color: #4299e1;
+            background-color: #ebf8ff;
+        }
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-exchange-alt text-blue-600 mr-3"></i>
+                Blog XML to CSV Converter
+            </h1>
+            <p class="text-gray-600 text-lg">
+                Convert your Squarespace, WordPress, Ghost, or Jekyll blog exports to Framer-compatible CSV format
+            </p>
+        </div>
+
+        <!-- Main Converter Card -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-upload text-green-600 mr-2"></i>
+                    Upload Your Blog Export
+                </h2>
+                
+                <!-- File Upload Zone -->
+                <div id="dropZone" class="drop-zone rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50">
+                    <div class="mb-4">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                    </div>
+                    <p class="text-lg text-gray-600 mb-2">Drag and drop your XML file here</p>
+                    <p class="text-gray-500 mb-4">or</p>
+                    <label for="fileInput" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg cursor-pointer transition-colors">
+                        <i class="fas fa-folder-open mr-2"></i>
+                        Choose File
+                    </label>
+                    <input type="file" id="fileInput" accept=".xml" class="hidden">
+                    <p class="text-sm text-gray-500 mt-3">Supports XML files up to 50MB</p>
+                </div>
+            </div>
+
+            <!-- Conversion Options -->
+            <div id="conversionOptions" class="hidden fade-in">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-cog text-blue-600 mr-2"></i>
+                    Conversion Options
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Platform Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Blog Platform</label>
+                        <select id="platformSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="wordpress">WordPress</option>
+                            <option value="ghost">Ghost</option>
+                            <option value="jekyll">Jekyll</option>
+                            <option value="squarespace">Squarespace</option>
+                        </select>
+                    </div>
+
+                    <!-- Content Processing Options -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Content Processing</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="preserveHtml" class="mr-2">
+                                <span class="text-sm text-gray-700">Preserve HTML formatting</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="stripHtml" class="mr-2">
+                                <span class="text-sm text-gray-700">Strip HTML tags</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Convert Button -->
+                <div class="mt-6 text-center">
+                    <button id="convertBtn" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                        <i class="fas fa-magic mr-2"></i>
+                        Convert to CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Analysis Results -->
+        <div id="fileAnalysis" class="hidden fade-in">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-chart-bar text-purple-600 mr-2"></i>
+                    File Analysis
+                </h3>
+                <div id="analysisContent" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Analysis content will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversion Progress -->
+        <div id="conversionProgress" class="hidden fade-in">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-spinner fa-spin text-blue-600 mr-2"></i>
+                    Converting...
+                </h3>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progressBar" class="progress-bar bg-blue-600 h-3 rounded-full" style="width: 0%"></div>
+                </div>
+                <p id="progressText" class="text-gray-600 mt-2">Initializing conversion...</p>
+            </div>
+        </div>
+
+        <!-- Conversion Results -->
+        <div id="conversionResults" class="hidden fade-in">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-semibold text-green-800 mb-4">
+                    <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                    Conversion Complete!
+                </h3>
+                <div id="resultsContent" class="mb-6">
+                    <!-- Results content will be populated here -->
+                </div>
+                <div class="text-center">
+                    <button id="downloadBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors mr-4">
+                        <i class="fas fa-download mr-2"></i>
+                        Download CSV
+                    </button>
+                    <button id="newConversionBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                        <i class="fas fa-plus mr-2"></i>
+                        New Conversion
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Display -->
+        <div id="errorDisplay" class="hidden fade-in">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <i class="fas fa-exclamation-triangle text-red-400 mt-1 mr-3"></i>
+                    <div>
+                        <h3 class="text-sm font-medium text-red-800">Error</h3>
+                        <p id="errorMessage" class="text-sm text-red-700 mt-1"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-gray-500 mt-12">
+            <p>Built with ❤️ for the Framer community</p>
+            <p class="text-sm mt-2">Supports WordPress, Ghost, Jekyll, and Squarespace exports</p>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentFile = null;
+        let conversionInProgress = false;
+
+        // DOM elements
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const conversionOptions = document.getElementById('conversionOptions');
+        const fileAnalysis = document.getElementById('fileAnalysis');
+        const conversionProgress = document.getElementById('conversionProgress');
+        const conversionResults = document.getElementById('conversionResults');
+        const errorDisplay = document.getElementById('errorDisplay');
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const newConversionBtn = document.getElementById('newConversionBtn');
+
+        // File upload handling
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            if (!file.name.toLowerCase().endsWith('.xml')) {
+                showError('Please select an XML file');
+                return;
+            }
+            
+            if (file.size > 50 * 1024 * 1024) {
+                showError('File size must be less than 50MB');
+                return;
+            }
+            
+            currentFile = file;
+            uploadFile(file);
+        }
+
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('platform', document.getElementById('platformSelect').value);
+            formData.append('preserve_html', document.getElementById('preserveHtml').checked);
+            formData.append('strip_html', document.getElementById('stripHtml').checked);
+            
+            try {
+                showProgress('Uploading file...');
+                
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    hideProgress();
+                    showConversionOptions();
+                    showFileAnalysis(result.analysis);
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                showError('Upload failed: ' + error.message);
+            }
+        }
+
+        function showConversionOptions() {
+            conversionOptions.classList.remove('hidden');
+            conversionOptions.classList.add('fade-in');
+        }
+
+        function showFileAnalysis(analysis) {
+            const content = document.getElementById('analysisContent');
+            
+            if (analysis.error) {
+                content.innerHTML = `<div class="text-red-600">${analysis.error}</div>`;
+            } else {
+                content.innerHTML = `
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-gray-800 mb-2">File Information</h4>
+                        <p class="text-sm text-gray-600">Size: ${analysis.file_size_mb} MB</p>
+                        <p class="text-sm text-gray-600">Detected Platform: ${analysis.detected_platform || 'Unknown'}</p>
+                        ${analysis.stats ? `<p class="text-sm text-gray-600">Posts: ${analysis.stats.total_posts || 'Unknown'}</p>` : ''}
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-gray-800 mb-2">Platform Support</h4>
+                        <p class="text-sm ${analysis.supported ? 'text-green-600' : 'text-yellow-600'}">
+                            ${analysis.supported ? '✅ Supported' : '⚠️ May need manual configuration'}
+                        </p>
+                    </div>
+                `;
+            }
+            
+            fileAnalysis.classList.remove('hidden');
+            fileAnalysis.classList.add('fade-in');
+        }
+
+        // Conversion handling
+        convertBtn.addEventListener('click', startConversion);
+        
+        async function startConversion() {
+            if (conversionInProgress) return;
+            
+            conversionInProgress = true;
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Converting...';
+            
+            try {
+                showProgress('Converting XML to CSV...');
+                simulateProgress();
+                
+                const response = await fetch('/convert', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    hideProgress();
+                    showConversionResults(result);
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                showError('Conversion failed: ' + error.message);
+            } finally {
+                conversionInProgress = false;
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<i class="fas fa-magic mr-2"></i>Convert to CSV';
+            }
+        }
+
+        function simulateProgress() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 90) {
+                    progress = 90;
+                    clearInterval(interval);
+                }
+                updateProgress(progress);
+            }, 200);
+        }
+
+        function updateProgress(percent) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            progressBar.style.width = percent + '%';
+            progressText.textContent = `Converting... ${Math.round(percent)}%`;
+        }
+
+        function showProgress(message) {
+            conversionProgress.classList.remove('hidden');
+            conversionProgress.classList.add('fade-in');
+            document.getElementById('progressText').textContent = message;
+        }
+
+        function hideProgress() {
+            conversionProgress.classList.add('hidden');
+        }
+
+        function showConversionResults(result) {
+            const content = document.getElementById('resultsContent');
+            
+            if (result.summary && !result.summary.error) {
+                content.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-green-800 mb-2">Conversion Summary</h4>
+                            <p class="text-sm text-green-700">Total Posts: ${result.summary.total_posts}</p>
+                            <p class="text-sm text-green-700">Output Size: ${result.summary.output_size_mb} MB</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">Output File</h4>
+                            <p class="text-sm text-blue-700">${result.output_filename}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <p class="text-green-700">Your file has been successfully converted!</p>
+                    </div>
+                `;
+            }
+            
+            conversionResults.classList.remove('hidden');
+            conversionResults.classList.add('fade-in');
+        }
+
+        // Download handling
+        downloadBtn.addEventListener('click', () => {
+            window.location.href = '/download';
+        });
+
+        // New conversion handling
+        newConversionBtn.addEventListener('click', resetConverter);
+
+        function resetConverter() {
+            // Hide all sections
+            conversionOptions.classList.add('hidden');
+            fileAnalysis.classList.add('hidden');
+            conversionProgress.classList.add('hidden');
+            conversionResults.classList.add('hidden');
+            errorDisplay.classList.add('hidden');
+            
+            // Reset file input
+            fileInput.value = '';
+            currentFile = null;
+            
+            // Reset options
+            document.getElementById('platformSelect').value = 'wordpress';
+            document.getElementById('preserveHtml').checked = false;
+            document.getElementById('stripHtml').checked = false;
+            
+            // Reset button
+            convertBtn.disabled = false;
+            convertBtn.innerHTML = '<i class="fas fa-magic mr-2"></i>Convert to CSV';
+        }
+
+        // Error handling
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            errorDisplay.classList.remove('hidden');
+            errorDisplay.classList.add('fade-in');
+            
+            // Auto-hide error after 5 seconds
+            setTimeout(() => {
+                errorDisplay.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Platform change handling
+            document.getElementById('platformSelect').addEventListener('change', () => {
+                if (currentFile) {
+                    // Re-upload with new platform
+                    uploadFile(currentFile);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
