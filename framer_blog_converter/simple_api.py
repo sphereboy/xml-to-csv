@@ -92,11 +92,11 @@ def convert_file():
             if not converter.load_platform_template(platform):
                 return jsonify({'error': f'Platform {platform} not supported'}), 400
             
-            # Convert the file
+            # Convert the file using the correct method name
             output_filename = f"{file_id}_{filename.replace('.xml', '.csv')}"
             output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
             
-            success = converter.convert_file(file_path, output_path)
+            success = converter.convert(file_path, output_path, platform)
             
             if not success:
                 return jsonify({'error': 'Conversion failed'}), 500
