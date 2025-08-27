@@ -46,8 +46,8 @@ framer_blog_converter/
 5. **Configure the service:**
    - **Name**: `framer-blog-api`
    - **Environment**: `Python 3`
-   - **Build Command**: `pip install -r framer_blog_converter/requirements.txt`
-   - **Start Command**: `cd framer_blog_converter && python api_app.py`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `python api_app.py`
 6. **Deploy!**
 
 ### Option B: Railway
@@ -75,7 +75,7 @@ Once your backend is deployed, you'll get a URL like:
 
 **Update the frontend to use this URL:**
 
-1. **Edit `framer_blog_converter/frontend/pages/index.tsx`**
+1. **Edit `frontend/pages/index.tsx`**
 2. **Replace the API calls with your backend URL:**
 
 ```typescript
@@ -101,8 +101,8 @@ const response = await fetch('https://your-backend-url.com/api/convert', {
 1. **Go to [netlify.com](https://netlify.com)**
 2. **Sign up and connect your GitHub repository**
 3. **Configure the build:**
-   - **Build command**: `cd framer_blog_converter/frontend && npm install && npm run build`
-   - **Publish directory**: `framer_blog_converter/frontend/out`
+   - **Build command**: `cd frontend && npm install && npm run build`
+   - **Publish directory**: `frontend/out`
 4. **Deploy!**
 
 ## Step 4: Test the Complete System

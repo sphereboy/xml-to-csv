@@ -1,6 +1,6 @@
 [build]
-  publish = "framer_blog_converter/frontend/out"
-  command = "cd framer_blog_converter/frontend && npm install && npm run build"
+  publish = "frontend/out"
+  command = "cd frontend && npm install && npm run build"
 
 [build.environment]
   NODE_VERSION = "18"
@@ -14,4 +14,4 @@
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200 
+  status = 200
