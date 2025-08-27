@@ -267,6 +267,8 @@ class WebConverter:
     
     def run(self, debug: bool = True, host: str = '0.0.0.0', port: int = 5000):
         """Run the Flask application."""
+        # Get port from environment variable for production deployment
+        port = int(os.environ.get('PORT', port))
         self.app.run(debug=debug, host=host, port=port)
 
 
@@ -278,4 +280,6 @@ def create_app():
 
 if __name__ == '__main__':
     converter = WebConverter()
-    converter.run(debug=True)
+    # Use environment variable to determine debug mode
+    debug = os.environ.get('FLASK_ENV') != 'production'
+    converter.run(debug=debug)
