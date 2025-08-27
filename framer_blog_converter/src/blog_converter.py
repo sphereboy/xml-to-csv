@@ -9,9 +9,9 @@ from pathlib import Path
 from lxml import etree
 from tqdm import tqdm
 
-from config import ConfigManager, PlatformMapping, DEFAULT_PLATFORMS
-from content_processor import ContentProcessor
-from framer_formatter import FramerFormatter
+from .config import ConfigManager, PlatformMapping, DEFAULT_PLATFORMS
+from .content_processor import ContentProcessor
+from .framer_formatter import FramerFormatter
 
 
 class FramerBlogConverter:
