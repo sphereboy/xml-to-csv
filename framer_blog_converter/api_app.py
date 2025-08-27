@@ -94,7 +94,7 @@ def convert_file():
             output_filename = f"{file_id}_{filename.replace('.xml', '.csv')}"
             output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
             
-            success = converter.convert_file(file_path, output_path)
+            success = converter.convert(file_path, output_path, platform)
             
             if not success:
                 return jsonify({'error': 'Conversion failed'}), 500
