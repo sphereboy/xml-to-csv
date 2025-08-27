@@ -38,10 +38,13 @@ export default function Home() {
       formData.append("platform", platform);
 
       // This will be your Python backend URL
-      const response = await fetch("/api/convert", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://xml-to-csv.onrender.com/api/convert",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
