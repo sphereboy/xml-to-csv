@@ -1,1 +1,17 @@
- 
+[build]
+  publish = "framer_blog_converter/frontend/out"
+  command = "cd framer_blog_converter/frontend && npm install && npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://your-python-backend-url.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
