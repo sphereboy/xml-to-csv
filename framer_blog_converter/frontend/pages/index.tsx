@@ -8,6 +8,12 @@ export default function Home() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Use production API URL
+  const API_BASE_URL =
+    process.env.NODE_ENV === "production"
+      ? "https://xml-to-csv.onrender.com"
+      : "http://localhost:5001";
+
   const platforms = [
     {
       value: "wordpress",
@@ -45,8 +51,8 @@ export default function Home() {
       formData.append("file", file);
       formData.append("platform", platform);
 
-      // Use local API for testing
-      const response = await fetch("http://localhost:5001/api/convert", {
+      // Use the correct API URL for production/development
+      const response = await fetch(`${API_BASE_URL}/api/convert`, {
         method: "POST",
         body: formData,
       });
